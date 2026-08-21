@@ -5,6 +5,13 @@
   ...
 }:
 
+let
+  unstable = import <unstable> {
+    system = pkgs.stdenv.hostPlatform.system;
+    # config.allowUnfree = true;
+  };
+
+in
 {
   imports = [
     ./hardware-configuration.nix
@@ -88,20 +95,38 @@
     ];
     shell = pkgs.zsh;
     packages = with pkgs; [
-      neovim
-      helix
-      tree-sitter
+
+      # basis tools
       starship
       zoxide
       fd
       ripgrep
       fzf
       eza
+      jq
       stow
       lazygit
-      pi-coding-agent
-      lynx
       gh
+      bat
+
+      # editor
+      neovim
+      helix
+      tree-sitter
+      nixd
+      nixfmt
+      clang-tools
+      gopls
+      rust-analyzer
+      bash-language-server
+      cmake-language-server
+      ty
+
+      # ai
+      unstable.pi-coding-agent
+      nodejs
+      lynx
+      unstable.codex
     ];
   };
 
