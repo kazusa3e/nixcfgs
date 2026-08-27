@@ -11,6 +11,8 @@ let
     # config.allowUnfree = true;
   };
 
+  generationsToKeep = 10;
+
 in
 {
   imports = [
@@ -22,6 +24,18 @@ in
   boot.loader.efi.canTouchEfiVariables = true;
 
   # boot.kernelParams = [ "spec_store_bypass_disable=on" ];
+
+  boot.loader.systemd-boot.configurationLimit = generationsToKeep;
+  nix.gc = {
+    automatic = true;
+    dates = "weekly";
+  };
+
+  systemd.services.nix-gc.preStart = ''
+    ${config.nix.package}/bin/nix-env \
+        --profile /nix/var/nix/profiles/system \
+        --delete-generations +${toString generationsToKeep}
+  '';
 
   networking.hostName = "arashi";
 
@@ -70,6 +84,7 @@ in
     git
     vim
     direnv
+    pstree
     # gnumake
   ];
 
@@ -108,6 +123,7 @@ in
       lazygit
       gh
       bat
+      yazi
 
       # editor
       neovim
@@ -119,6 +135,7 @@ in
       gopls
       rust-analyzer
       bash-language-server
+      cmake
       cmake-language-server
       ty
 
