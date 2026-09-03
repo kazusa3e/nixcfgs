@@ -85,7 +85,7 @@ in
     vim
     direnv
     pstree
-    # gnumake
+    gnumake
   ];
 
   environment.variables.EDITOR = "vim";
@@ -131,6 +131,7 @@ in
       tree-sitter
       nixd
       nixfmt
+      taplo
       clang-tools
       gopls
       rust-analyzer
