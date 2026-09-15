@@ -11,7 +11,7 @@ let
     # config.allowUnfree = true;
   };
 
-  generationsToKeep = 10;
+  generationsToKeep = 5;
 
 in
 {
@@ -26,6 +26,12 @@ in
   # boot.kernelParams = [ "spec_store_bypass_disable=on" ];
 
   boot.loader.systemd-boot.configurationLimit = generationsToKeep;
+
+  nix.settings = {
+    max-jobs = "auto";
+    http-connections = 16;
+  };
+
   nix.gc = {
     automatic = true;
     dates = "weekly";
