@@ -92,6 +92,8 @@ in
     direnv
     pstree
     gnumake
+    sysstat
+    perf
   ];
 
   environment.variables.EDITOR = "vim";
