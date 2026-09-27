@@ -17,6 +17,7 @@ in
 {
   imports = [
     ./hardware-configuration.nix
+    ./seafile-sync.nix
   ];
 
   # Use the systemd-boot EFI boot loader.
