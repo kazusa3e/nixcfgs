@@ -133,6 +133,9 @@ in
       gh
       bat
       yazi
+      python3
+
+      podman-compose
 
       # editor
       neovim
@@ -154,6 +157,7 @@ in
       nodejs
       lynx
       unstable.codex
+      unstable.opencode
     ];
   };
 
