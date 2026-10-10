@@ -86,7 +86,8 @@ in
     wget
     tree
     curl
-    tmux
+    # tmux 3.7+ fixes truncated OSC 4 replies leaking into input (upstream #4749).
+    unstable.tmux
     htop
     git
     vim
