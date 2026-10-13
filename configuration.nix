@@ -133,6 +133,7 @@ in
       lazygit
       gh
       bat
+      tldr
       yazi
       python3
 
