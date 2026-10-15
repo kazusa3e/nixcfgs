@@ -78,6 +78,10 @@ in
     description = "Seafile file sync in rootless Podman";
     wantedBy = [ "default.target" ];
     unitConfig.ConditionUser = "kazusa";
+    # Rootless Podman needs the setuid newuidmap/newgidmap wrappers to create
+    # its user namespace; systemd's default PATH omits /run/wrappers/bin, so
+    # without this the service retries until another podman run creates it.
+    path = [ "/run/wrappers" ];
     serviceConfig = {
       Type = "exec";
       Restart = "always";
