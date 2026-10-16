@@ -1,15 +1,17 @@
 {
   config,
-  lib,
+  inputs,
   pkgs,
   ...
 }:
 
 let
-  unstable = import <unstable> {
+  unstable = import inputs.nixpkgs-unstable {
     system = pkgs.stdenv.hostPlatform.system;
     # config.allowUnfree = true;
   };
+
+  packages = import ./packages { inherit pkgs unstable; };
 
   generationsToKeep = 5;
 
@@ -29,6 +31,10 @@ in
   boot.loader.systemd-boot.configurationLimit = generationsToKeep;
 
   nix.settings = {
+    experimental-features = [
+      "nix-command"
+      "flakes"
+    ];
     max-jobs = "auto";
     http-connections = 16;
   };
@@ -80,23 +86,9 @@ in
   programs.nix-ld.enable = true;
 
   programs.mosh.enable = true;
+  programs.command-not-found.enable = false;
 
-  environment.systemPackages = with pkgs; [
-    file
-    wget
-    tree
-    curl
-    # tmux 3.7+ fixes truncated OSC 4 replies leaking into input (upstream #4749).
-    unstable.tmux
-    htop
-    git
-    vim
-    direnv
-    pstree
-    gnumake
-    sysstat
-    perf
-  ];
+  environment.systemPackages = packages.system;
 
   environment.variables.EDITOR = "vim";
   environment.variables.VISUAL = "vim";
@@ -119,48 +111,7 @@ in
       "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIG+3HDmzI4lCdyrTpZpdxwZjVkuplE547xX6/k+tTacG"
     ];
     shell = pkgs.zsh;
-    packages = with pkgs; [
-
-      # basis tools
-      starship
-      zoxide
-      fd
-      ripgrep
-      fzf
-      eza
-      jq
-      stow
-      lazygit
-      gh
-      bat
-      tldr
-      yazi
-      python3
-
-      podman-compose
-
-      # editor
-      neovim
-      helix
-      tree-sitter
-      nixd
-      nixfmt
-      taplo
-      clang-tools
-      gopls
-      rust-analyzer
-      bash-language-server
-      cmake
-      cmake-language-server
-      ty
-
-      # ai
-      unstable.pi-coding-agent
-      nodejs
-      lynx
-      unstable.codex
-      unstable.opencode
-    ];
+    packages = packages.user;
   };
 
   # Some programs need SUID wrappers, can be configured further or are
