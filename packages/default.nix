@@ -21,6 +21,8 @@
       pstree
       sysstat
       perf
+      strace
+      iotop
     ];
 
   user =
@@ -40,6 +42,8 @@
       lazygit
       gh
       tldr
+      sshpass
+      entr
     ]
     ++ [
       # Runtimes and build tools.
@@ -57,7 +61,7 @@
       helix
     ]
     ++ [
-      # Language servers and formatters.
+      # Development tools.
       nixd
       nixfmt
       taplo
@@ -67,7 +71,11 @@
       rust-analyzer
       bash-language-server
       cmake-language-server
+      cmake-format
       ty
+      lua-language-server
+      stylua
+      yaml-language-server
     ]
     ++ [
       # AI tools.
