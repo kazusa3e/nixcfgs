@@ -1,18 +1,11 @@
 {
   config,
-  inputs,
   pkgs,
+  userPackages,
   ...
 }:
 
 let
-  unstable = import inputs.nixpkgs-unstable {
-    system = pkgs.stdenv.hostPlatform.system;
-    # config.allowUnfree = true;
-  };
-
-  packages = import ./packages { inherit pkgs unstable; };
-
   generationsToKeep = 5;
 
 in
@@ -88,7 +81,16 @@ in
   programs.mosh.enable = true;
   programs.command-not-found.enable = false;
 
-  environment.systemPackages = packages.system;
+  environment.systemPackages = with pkgs; [
+    vim
+    file
+    curl
+    wget
+    gnumake
+    htop
+    git
+    tree
+  ];
 
   environment.variables.EDITOR = "vim";
   environment.variables.VISUAL = "vim";
@@ -111,7 +113,7 @@ in
       "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIG+3HDmzI4lCdyrTpZpdxwZjVkuplE547xX6/k+tTacG"
     ];
     shell = pkgs.zsh;
-    packages = packages.user;
+    packages = userPackages;
   };
 
   # Some programs need SUID wrappers, can be configured further or are
