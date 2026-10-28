@@ -24,9 +24,12 @@ with pkgs;
   # Go.
   go
   gopls
+  gotools
 
   # Python.
   ty
+  black
+  isort
 
   # Lua.
   lua-language-server
@@ -38,6 +41,11 @@ with pkgs;
 
   # Shell.
   bash-language-server
+  shfmt
+
+  # Web.
+  prettier
+  prettierd
 
   # Configuration languages.
   taplo

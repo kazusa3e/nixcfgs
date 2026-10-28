@@ -2,6 +2,7 @@
 
 with pkgs;
 [
+  nodejs
   sysstat
   perf
   strace

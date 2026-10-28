@@ -32,7 +32,6 @@ with pkgs;
 
   # Runtimes and containers.
   python3
-  nodejs
   podman-compose
 
   # Shell integration.
