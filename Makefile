@@ -10,7 +10,7 @@ help:
 		'Default host: $(HOST). No remote deployment or flake.lock updates.'
 
 check-host:
-	@nix eval --raw --file ./hosts.nix \
+	@nix eval --raw --file ./hosts \
 		--apply 'hosts: if builtins.hasAttr "$(HOST)" hosts then "" else throw "Unknown host: $(HOST)"'
 
 ifeq ($(HOST),arashi)

@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# Initialize the Seafile client running on arashi.
 set -euo pipefail
 
 container_name=seafile-sync

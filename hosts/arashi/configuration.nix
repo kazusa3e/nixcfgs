@@ -5,6 +5,7 @@
   ...
 }:
 
+# arashi NixOS configuration.
 let
   generationsToKeep = 5;
 

@@ -4,6 +4,7 @@
   ...
 }:
 
+# arashi rootless Seafile client.
 let
   containerName = "seafile-sync";
   imageName = "localhost/seafile-sync";

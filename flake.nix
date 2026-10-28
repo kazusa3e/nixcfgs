@@ -1,6 +1,7 @@
 {
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-26.05";
+    nixpkgs-darwin.url = "github:NixOS/nixpkgs/nixpkgs-26.05-darwin";
     nixpkgs-unstable.url = "github:NixOS/nixpkgs/nixos-unstable";
   };
 
@@ -8,17 +9,22 @@
     inputs:
     let
       lib = inputs.nixpkgs.lib;
-      hosts = import ./hosts.nix;
+      hosts = import ./hosts;
       mkHost =
         host:
         let
           inherit (host) system;
-          pkgs = import inputs.nixpkgs { inherit system; };
-          unstable =
-            if host.useUnstable or true then import inputs.nixpkgs-unstable { inherit system; } else pkgs;
-          packages =
-            (import ./packages { inherit pkgs unstable; })
-            ++ (host.extraPackages or (_: [ ])) { inherit pkgs unstable; };
+          pkgs = import inputs.${host.packageSources.stable} { inherit system; };
+          latest =
+            if host.packageSources.latest == null then
+              null
+            else
+              import inputs.${host.packageSources.latest} { inherit system; };
+          extraPackages = (host.extraPackages or (_: [ ])) { inherit pkgs latest; };
+          packages = import ./packages {
+            inherit pkgs latest extraPackages;
+            inherit (host) profiles;
+          };
         in
         {
           inherit packages;
@@ -55,7 +61,7 @@
         specialArgs = {
           userPackages = arashi.packages;
         };
-        modules = [ ./configuration.nix ];
+        modules = [ hosts.arashi.nixosModule ];
       };
     };
 }
