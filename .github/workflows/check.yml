@@ -1,0 +1,36 @@
+name: Checks
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Install Nix
+        uses: cachix/install-nix-action@75c75c31ebece974e48ebc36b4ad125bd97bd97b # v31.11.3
+        with:
+          github_access_token: ${{ github.token }}
+
+      - name: Evaluate tool and NixOS kernel versions
+        run: |
+          python3 -B - <<'PY'
+          from scripts.update_flake_lock import evaluate_kernels, evaluate_packages
+          evaluate_packages()
+          evaluate_kernels()
+          PY
+
+      - name: Check the flake without building
+        run: nix flake check --no-build --all-systems --no-update-lock-file
