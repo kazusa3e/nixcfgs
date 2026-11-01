@@ -140,7 +140,9 @@ def update(output_dir):
         "are not listed.\n\n"
         "Package metadata evaluation and `nix flake check --no-build --all-systems` "
         "run before this PR is published. No builds or deployments are performed.\n\n"
-        "When squash-merging, preserve the version report in the commit message.\n"
+        "After required checks pass, this PR is automatically squash-merged, "
+        "including kernel updates. The version report is retained in the "
+        "commit message.\n"
     )
     output_dir.mkdir(parents=True, exist_ok=True)
     (output_dir / "commit-message.txt").write_text(message, encoding="utf-8")

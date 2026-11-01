@@ -19,6 +19,7 @@ jobs:
     permissions:
       contents: write
       pull-requests: write
+      statuses: write
     steps:
       - name: Check out the default branch
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -39,8 +40,15 @@ jobs:
         if: steps.update.outputs.changed == 'true'
         run: nix flake check --no-build --all-systems --no-update-lock-file
 
+      - name: Record the validated tree
+        if: steps.update.outputs.changed == 'true'
+        run: |
+          git add -- flake.lock
+          git write-tree > "$RUNNER_TEMP/flake-update/checked-tree.txt"
+
       # Also run on no-change updates so obsolete PR branches can be cleaned up.
       - name: Create or refresh the update PR
+        id: pr
         uses: peter-evans/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1 # v8.1.1
         with:
           base: ${{ github.event.repository.default_branch }}
@@ -51,3 +59,60 @@ jobs:
           commit-message: ${{ steps.update.outputs.commit-message }}
           title: 'chore(deps): update flake inputs'
           body-path: ${{ runner.temp }}/flake-update/pr-body.md
+
+      - name: Publish validation and enable auto-merge
+        if: steps.update.outputs.changed == 'true' && steps.pr.outputs.pull-request-number != '' && steps.pr.outputs.pull-request-operation != 'closed'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          PR_NUMBER: ${{ steps.pr.outputs.pull-request-number }}
+          EXPECTED_SHA: ${{ steps.pr.outputs.pull-request-head-sha }}
+          DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
+        run: |
+          gh pr view "$PR_NUMBER" \
+            --json author,baseRefName,headRefName,headRefOid,isCrossRepository,files \
+            > "$RUNNER_TEMP/flake-update/pr.json"
+          gh api "repos/$GH_REPO/branches/$DEFAULT_BRANCH" \
+            > "$RUNNER_TEMP/flake-update/protection.json"
+          python3 -B - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+          import subprocess
+
+          reports = Path(os.environ["RUNNER_TEMP"]) / "flake-update"
+          pr = json.loads((reports / "pr.json").read_text())
+          if not (
+              pr["author"]["is_bot"]
+              and pr["author"]["login"] in {"app/github-actions", "github-actions[bot]"}
+              and not pr["isCrossRepository"]
+              and pr["headRefName"] == "automation/update-flake-lock"
+              and pr["baseRefName"] == os.environ["DEFAULT_BRANCH"]
+              and pr["headRefOid"] == os.environ["EXPECTED_SHA"]
+              and [file["path"] for file in pr["files"]] == ["flake.lock"]
+          ):
+              raise SystemExit("Refusing to auto-merge an unexpected PR or commit")
+          tree = subprocess.check_output(
+              ["git", "rev-parse", os.environ["EXPECTED_SHA"] + "^{tree}"], text=True
+          ).strip()
+          if tree != (reports / "checked-tree.txt").read_text().strip():
+              raise SystemExit("The PR tree differs from the validated configuration")
+          branch = json.loads((reports / "protection.json").read_text())
+          checks = branch.get("protection", {}).get("required_status_checks", {}).get("checks", [])
+          if not (
+              branch["protected"]
+              and {"context": "check", "app_id": 15368} in checks
+          ):
+              raise SystemExit("Auto-merge requires the protected branch's Actions check")
+          message = (reports / "commit-message.txt").read_text()
+          (reports / "merge-body.txt").write_text(message.split("\n\n", 1)[1])
+          PY
+          gh api --method POST "repos/$GH_REPO/statuses/$EXPECTED_SHA" \
+            -f state=success -f context=check \
+            -f description='Tool, kernel and flake evaluation passed for this exact tree' \
+            -f target_url="$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID" \
+            --jq '.state'
+          gh pr merge "$PR_NUMBER" --auto --squash \
+            --match-head-commit "$EXPECTED_SHA" \
+            --subject 'chore(deps): update flake inputs' \
+            --body-file "$RUNNER_TEMP/flake-update/merge-body.txt"
