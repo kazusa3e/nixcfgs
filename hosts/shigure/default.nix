@@ -8,4 +8,7 @@
     "base"
     "development"
   ];
+  extraPackages = { pkgs, ... }: [
+    pkgs.mosh
+  ];
 }
