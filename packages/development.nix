@@ -1,4 +1,7 @@
-{ pkgs }:
+{
+  pkgs,
+  latest ? pkgs,
+}:
 
 with pkgs;
 [
@@ -50,4 +53,9 @@ with pkgs;
   # Configuration languages.
   taplo
   yaml-language-server
+
+  # AI coding agents.
+  latest.pi-coding-agent
+  latest.codex
+  latest.opencode
 ]

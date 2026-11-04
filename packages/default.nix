@@ -1,7 +1,8 @@
 {
   pkgs,
-  latest ? null,
+  latest ? pkgs,
   profiles ? [ "base" ],
+  excludePackages ? [ ],
   extraPackages ? [ ],
 }:
 
@@ -9,25 +10,14 @@ let
   inherit (pkgs) lib;
 
   groups = {
-    base = import ./base.nix { inherit pkgs; };
-    development = import ./development.nix { inherit pkgs; };
+    base = import ./base.nix { inherit pkgs latest; };
+    development = import ./development.nix { inherit pkgs latest; };
   };
 
   selectedPackages = lib.concatMap (profile: groups.${profile}) profiles;
-
-  latestPackages = lib.optionals (latest != null) [
-    latest.tmux
-    latest.pi-coding-agent
-    latest.codex
-    latest.opencode
-  ];
-
-  platformPackages =
-    if pkgs.stdenv.isLinux then
-      import ./platform/linux.nix { inherit pkgs; }
-    else if pkgs.stdenv.isDarwin then
-      import ./platform/darwin.nix { inherit pkgs; }
-    else
-      [ ];
+  # Exclude profile packages by version-independent name; explicit extras remain untouched.
+  filteredPackages = lib.filter (
+    package: !(builtins.elem (lib.getName package) excludePackages)
+  ) selectedPackages;
 in
-selectedPackages ++ latestPackages ++ platformPackages ++ extraPackages
+filteredPackages ++ extraPackages

@@ -1,4 +1,7 @@
-{ pkgs }:
+{
+  pkgs,
+  latest ? pkgs,
+}:
 
 with pkgs;
 [
@@ -29,8 +32,10 @@ with pkgs;
   stow
   lazygit
   gh
+  latest.tmux
 
   # Runtimes and containers.
+  nodejs
   python3
   podman-compose
 
@@ -42,4 +47,12 @@ with pkgs;
   # Editors.
   neovim
   helix
+]
+
+++ lib.optionals stdenv.isLinux [
+  # Linux diagnostics.
+  sysstat
+  perf
+  strace
+  iotop
 ]

@@ -17,13 +17,14 @@
           pkgs = import inputs.${host.packageSources.stable} { inherit system; };
           latest =
             if host.packageSources.latest == null then
-              null
+              pkgs
             else
               import inputs.${host.packageSources.latest} { inherit system; };
           extraPackages = (host.extraPackages or (_: [ ])) { inherit pkgs latest; };
           packages = import ./packages {
             inherit pkgs latest extraPackages;
             inherit (host) profiles;
+            excludePackages = host.excludePackages or [ ];
           };
         in
         {
