@@ -35,6 +35,7 @@
             pathsToLink = [
               "/bin"
               "/share/man"
+              "/share/nix-direnv"
               "/share/bash-completion"
               "/share/zsh"
               "/share/zsh-autosuggestions"

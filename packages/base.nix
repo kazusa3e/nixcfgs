@@ -15,6 +15,7 @@ with pkgs;
   git
   tree
   direnv
+  nix-direnv
   pstree
   sshpass
   entr

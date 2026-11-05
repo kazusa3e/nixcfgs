@@ -93,6 +93,8 @@ in
     tree
   ];
 
+  environment.pathsToLink = [ "/share/nix-direnv" ];
+
   environment.variables.EDITOR = "vim";
   environment.variables.VISUAL = "vim";
 
