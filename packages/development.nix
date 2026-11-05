@@ -5,29 +5,26 @@
 
 with pkgs;
 [
-  # Build systems and data formats.
-  cmake
-  ninja
-  meson
-  protobuf
-
   # C and C++.
-  llvmPackages.clang
+  # llvmPackages.clang
+  # cmake
+  # ninja
+  # meson
   llvmPackages.clang-tools
   cmake-language-server
   cmake-format
 
   # Rust.
-  rustc
-  cargo
+  # rustc
+  # cargo
   rust-analyzer
   rustfmt
-  clippy
+  # clippy
 
   # Go.
-  go
+  # go
   gopls
-  gotools
+  # gotools
 
   # Python.
   ty
