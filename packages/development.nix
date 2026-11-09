@@ -49,6 +49,7 @@ with pkgs;
 
   # Configuration languages.
   taplo
+  vscode-json-languageserver
   yaml-language-server
 
   # AI coding agents.
