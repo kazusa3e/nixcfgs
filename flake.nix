@@ -3,6 +3,9 @@
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-26.05";
     nixpkgs-darwin.url = "github:NixOS/nixpkgs/nixpkgs-26.05-darwin";
     nixpkgs-unstable.url = "github:NixOS/nixpkgs/nixos-unstable";
+
+    nixpkgs-pin-codex.url = "github:NixOS/nixpkgs/f9a75f41be3a74eab55d3a7679d34ad6cc0da977";
+    nixpkgs-pin-opencode.url = "github:NixOS/nixpkgs/0bb2eedc20e4739f29e8045034f2828ad7054f8f";
   };
 
   outputs =
@@ -10,6 +13,7 @@
     let
       lib = inputs.nixpkgs.lib;
       hosts = import ./hosts;
+      pinInputs = lib.filterAttrs (name: _: lib.hasPrefix "nixpkgs-pin-" name) inputs;
       mkHost =
         host:
         let
@@ -20,9 +24,22 @@
               pkgs
             else
               import inputs.${host.packageSources.latest} { inherit system; };
+          packagePins = lib.mapAttrs' (
+            name: input:
+            let
+              packageName = lib.removePrefix "nixpkgs-pin-" name;
+              pinnedPkgs = import input { inherit system; };
+            in
+            lib.nameValuePair packageName pinnedPkgs.${packageName}
+          ) pinInputs;
           extraPackages = (host.extraPackages or (_: [ ])) { inherit pkgs latest; };
           packages = import ./packages {
-            inherit pkgs latest extraPackages;
+            inherit
+              pkgs
+              latest
+              extraPackages
+              packagePins
+              ;
             inherit (host) profiles;
             excludePackages = host.excludePackages or [ ];
           };

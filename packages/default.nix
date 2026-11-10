@@ -4,6 +4,7 @@
   profiles ? [ "base" ],
   excludePackages ? [ ],
   extraPackages ? [ ],
+  packagePins ? { },
 }:
 
 let
@@ -20,4 +21,6 @@ let
     package: !(builtins.elem (lib.getName package) excludePackages)
   ) selectedPackages;
 in
-filteredPackages ++ extraPackages
+builtins.map (package: packagePins.${lib.getName package} or package) (
+  filteredPackages ++ extraPackages
+)
