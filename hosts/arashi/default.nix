@@ -8,5 +8,8 @@
     "base"
     "development"
   ];
+  extraPackages = { pkgs, ... }: [
+    pkgs.rclone
+  ];
   nixosModule = ./configuration.nix;
 }
