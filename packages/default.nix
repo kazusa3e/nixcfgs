@@ -13,6 +13,7 @@ let
   groups = {
     base = import ./base.nix { inherit pkgs latest; };
     development = import ./development.nix { inherit pkgs latest; };
+    ai = import ./ai.nix { inherit pkgs latest; };
   };
 
   selectedPackages = lib.concatMap (profile: groups.${profile}) profiles;

@@ -6,15 +6,9 @@
   };
   profiles = [
     "base"
-    "development"
   ];
-  # These tools are managed outside Nix on this host.
-  excludePackages = [
-    "tmux"
-    "pi-coding-agent"
-    "codex"
-    "opencode"
-  ];
+  # tmux is managed outside Nix on this host.
+  excludePackages = [ "tmux" ];
   extraPackages = { pkgs, ... }: [
     pkgs.mosh
   ];

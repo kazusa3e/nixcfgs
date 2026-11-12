@@ -51,9 +51,4 @@ with pkgs;
   taplo
   vscode-json-languageserver
   yaml-language-server
-
-  # AI coding agents.
-  latest.pi-coding-agent
-  latest.codex
-  latest.opencode
 ]

@@ -7,6 +7,7 @@
   profiles = [
     "base"
     "development"
+    "ai"
   ];
   extraPackages = { pkgs, ... }: [
     pkgs.tshark
