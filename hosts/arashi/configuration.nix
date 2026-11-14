@@ -71,7 +71,7 @@ in
     };
     openFirewall = true;
   };
-  security.sudo.wheelNeedsPassword = false;
+  security.sudo.wheelNeedsPassword = true;
 
   services.tailscale.enable = true;
 
