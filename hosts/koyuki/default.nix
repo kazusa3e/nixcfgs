@@ -9,7 +9,8 @@
     "development"
     "ai"
   ];
-  extraPackages = { pkgs, ... }: [
+  extraPackages = { pkgs, latest, ... }: [
     pkgs.tshark
+    latest.claude-code
   ];
 }
