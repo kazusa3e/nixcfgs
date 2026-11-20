@@ -12,17 +12,21 @@
     let
       lib = inputs.nixpkgs.lib;
       hosts = import ./hosts;
+      unfreePackages = [ "claude-code" ];
+      nixpkgsConfig = {
+          allowUnfreePredicate = pkg: builtins.elem (lib.getName pkg) unfreePackages;
+      };
       pinInputs = lib.filterAttrs (name: _: lib.hasPrefix "nixpkgs-pin-" name) inputs;
       mkHost =
         host:
         let
           inherit (host) system;
-          pkgs = import inputs.${host.packageSources.stable} { inherit system; };
+          pkgs = import inputs.${host.packageSources.stable} { inherit system; config = nixpkgsConfig; };
           latest =
             if host.packageSources.latest == null then
               pkgs
             else
-              import inputs.${host.packageSources.latest} { inherit system; };
+              import inputs.${host.packageSources.latest} { inherit system; config = nixpkgsConfig; };
           packagePins = lib.mapAttrs' (
             name: input:
             let
@@ -31,7 +35,7 @@
             in
             lib.nameValuePair packageName pinnedPkgs.${packageName}
           ) pinInputs;
-          extraPackages = (host.extraPackages or (_: [ ])) { inherit pkgs latest; };
+          extraPackages = (host.extraPackages or (_: [ ])) { inherit pkgs latest; config = nixpkgsConfig; };
           packages = import ./packages {
             inherit
               pkgs
